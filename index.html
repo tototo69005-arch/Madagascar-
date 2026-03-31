@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mada">
+<title>🇲🇬 Madagascar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════ */
+:root {
+  /* Base */
+  --bg:       #0a0a0f;
+  --bg2:      #111118;
+  --surf:     #18181f;
+  --surf2:    #222230;
+  --border:   rgba(255,255,255,.07);
+  --border2:  rgba(255,255,255,.12);
+
+  /* Text */
+  --text:     #f0f0f8;
+  --text2:    #9898b8;
+  --text3:    #55556a;
+
+  /* Accents — richer, higher contrast */
+  --gold:     #f0b155;
+  --gold-dim: rgba(240,177,85,.12);
+  --green:    #3ecf8e;
+  --green-dim:rgba(62,207,142,.1);
+  --red:      #f05c5c;
+  --red-dim:  rgba(240,92,92,.1);
+
+  /* Devise */
+  --ar:       #a78bfa;
+  --ar-dim:   rgba(167,139,250,.12);
+  --eur:      #60a5fa;
+  --eur-dim:  rgba(96,165,250,.12);
+  --cb:       #fb923c;
+  --cb-dim:   rgba(251,146,60,.12);
+
+  /* Retrait */
+  --ret:      #34d399;
+  --ret-dim:  rgba(52,211,153,.08);
+  --ret-border:rgba(52,211,153,.2);
+
+  /* Radius */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+}
+
+/* ═══════════════════════════════
+   RESET & BASE
+═══════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; background: var(--bg); }
+body {
+  height: 100%; overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+/* ═══════════════════════════════
+   APP SHELL
+═══════════════════════════════ */
+.app-shell { display: flex; flex-direction: column; height: 100%; background: var(--bg); }
+
+/* ═══════════════════════════════
+   HEADER
+═══════════════════════════════ */
+header {
+  background: var(--bg);
+  padding: 16px 20px 0;
+  flex-shrink: 0;
+  transition: max-height .3s cubic-bezier(.4,0,.2,1),
+              opacity .3s cubic-bezier(.4,0,.2,1),
+              padding .3s cubic-bezier(.4,0,.2,1);
+  max-height: 240px;
+  overflow: hidden;
+  position: relative; z-index: 50;
+}
+header.hidden-header {
+  max-height: 0; opacity: 0;
+  padding-top: 0; padding-bottom: 0;
+}
+
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.header-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -.5px;
+  background: linear-gradient(135deg, #f0b155 0%, #f0d185 50%, #e8916a 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.sync-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 20px;
+  background: var(--surf); border: 1px solid var(--border2);
+  font-size: 11px; font-weight: 500; color: var(--text2);
+  cursor: pointer; transition: all .15s;
+}
+.sync-pill:active { opacity: .7; }
+.sync-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text3); transition: background .3s;
+  flex-shrink: 0;
+}
+.sync-dot.synced  { background: var(--green); }
+.sync-dot.syncing { background: var(--gold); animation: blink 1s ease infinite; }
+.sync-dot.error   { background: var(--red); }
+.sync-dot.offline { background: var(--red); }
+.sync-dot.pending { background: var(--gold); animation: blink 1s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Wallet strip — horizontal scroll */
+.wallets {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px; padding-bottom: 16px;
+}
+.wallet {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  position: relative; overflow: hidden;
+}
+.wallet::before {
+  content: ''; position: absolute;
+  top: -20px; right: -20px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  opacity: .06;
+}
+.w-ar::before  { background: var(--ar); }
+.w-eur::before { background: var(--eur); }
+.w-tot::before { background: var(--gold); }
+.wallet .w-label {
+  font-size: 9px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 6px;
+}
+.wallet .w-val  { font-size: 14px; font-weight: 700; line-height: 1; }
+.wallet .w-sub  { font-size: 9px; color: var(--text3); margin-top: 4px; }
+.w-ar  .w-val { color: var(--ar); }
+.w-eur .w-val { color: var(--eur); }
+.w-tot .w-val { color: var(--gold); }
+
+/* ═══════════════════════════════
+   CLOUD STATUS BAR
+═══════════════════════════════ */
+.cloud-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  font-size: 10px; font-weight: 500; color: var(--text3);
+  flex-shrink: 0;
+}
+.cloud-bar.hidden { display: none; }
+.cloud-left { display: flex; align-items: center; gap: 6px; }
+.cloud-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text3); }
+.cloud-dot.ok   { background: var(--green); }
+.cloud-dot.err  { background: var(--red); }
+.cloud-dot.sync { background: var(--gold); animation: blink 1s ease infinite; }
+
+/* ═══════════════════════════════
+   TAB BAR
+═══════════════════════════════ */
+.tab-bar {
+  display: flex; padding: 0 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; gap: 4px;
+}
+.tab-btn {
+  flex: 1; padding: 12px 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--text3); cursor: pointer;
+  border: none; background: none;
+  border-bottom: 2px solid transparent;
+  transition: all .2s; letter-spacing: .01em;
+}
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ═══════════════════════════════
+   ACTION BAR
+═══════════════════════════════ */
+.action-bar {
+  display: flex; gap: 10px; padding: 12px 20px;
+  background: var(--bg); flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 16px; border-radius: var(--r-sm);
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; white-space: nowrap;
+  transition: transform .1s, opacity .1s;
+  letter-spacing: .01em;
+}
+.btn:active { transform: scale(.96); opacity: .8; }
+
+.btn-ar {
+  flex: 2;
+  background: var(--ar-dim);
+  color: var(--ar);
+  border: 1px solid rgba(167,139,250,.2);
+}
+.btn-ret {
+  flex: 1;
+  background: var(--ret-dim);
+  color: var(--ret);
+  border: 1px solid var(--ret-border);
+}
+.btn-more {
+  background: var(--surf); color: var(--text2);
+  border: 1px solid var(--border2);
+  padding: 11px 13px;
+}
+
+/* ═══════════════════════════════
+   SCROLLABLE / SWIPE
+═══════════════════════════════ */
+.scrollable-area {
+  flex: 1; min-height: 0; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+}
+.swipe-wrapper {
+  display: flex; width: 200%; flex: 1; min-height: 0;
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+}
+.swipe-wrapper.tab-recap { transform: translateX(-50%); }
+.tab-pane {
+  width: 50%; height: 100%;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  background: var(--bg);
+  position: relative;
+}
+
+/* ═══════════════════════════════
+   PULL TO REFRESH
+═══════════════════════════════ */
+.ptr-wrap {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .25s cubic-bezier(.4,0,.2,1);
+  background: var(--bg);
+}
+.ptr-wrap.ptr-open { max-height: 56px; }
+.ptr-inner {
+  height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; font-size: 12px; font-weight: 500; color: var(--text3);
+}
+.ptr-icon {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  transition: transform .3s ease;
+}
+.ptr-icon.ready    { transform: rotate(180deg); border-top-color: var(--green); }
+.ptr-icon.spinning { animation: spin .6s linear infinite; border-top-color: var(--gold); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════════════════════
+   CONTENT
+═══════════════════════════════ */
+.content { padding: 8px 16px 120px; }
+
+/* ═══════════════════════════════
+   DAY SEPARATOR
+═══════════════════════════════ */
+.day-sep {
+  display: flex; align-items: center; gap: 12px;
+  padding: 24px 4px 10px;
+  cursor: pointer; user-select: none;
+}
+.day-sep:active { opacity: .7; }
+.day-chevron {
+  font-size: 10px; color: var(--text3);
+  transition: transform .25s ease;
+  flex-shrink: 0;
+}
+.day-sep.collapsed .day-chevron { transform: rotate(-90deg); }
+.day-info { flex: 1; min-width: 0; }
+.day-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: var(--text); letter-spacing: .01em;
+  text-transform: capitalize;
+}
+.day-amount {
+  font-size: 11px; font-weight: 500;
+  color: var(--text3); margin-top: 1px;
+}
+.day-line { flex: 1; height: 1px; background: var(--border); }
+
+.day-entries { }
+.day-entries.hidden { display: none; }
+
+/* ═══════════════════════════════
+   ENTRY CARD
+═══════════════════════════════ */
+.entry-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  animation: cardIn .3s cubic-bezier(.4,0,.2,1) both;
+  transition: border-color .15s;
+}
+.entry-card:active { opacity: .85; transform: scale(.99); }
+.entry-card.retrait {
+  background: var(--ret-dim);
+  border-color: var(--ret-border);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.entry-main {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 16px 10px; gap: 12px;
+}
+.entry-left { flex: 1; min-width: 0; }
+.entry-title {
+  font-size: 14px; font-weight: 600;
+  color: var(--text); letter-spacing: -.1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
+.entry-tags { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+.entry-right { text-align: right; flex-shrink: 0; }
+.entry-amount {
+  font-size: 15px; font-weight: 700;
+  letter-spacing: -.3px; line-height: 1;
+}
+.entry-eq {
+  font-size: 11px; color: var(--text3);
+  margin-top: 4px; font-weight: 400;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 600; letter-spacing: .02em;
+}
+.b-cat  { background: rgba(255,255,255,.06); color: var(--text3); }
+.b-ar   { background: var(--ar-dim);  color: var(--ar); }
+.b-eur  { background: var(--eur-dim); color: var(--eur); }
+.b-cb   { background: var(--cb-dim);  color: var(--cb); }
+.b-ret  { background: var(--ret-dim); color: var(--ret); }
+
+/* Solde row */
+.entry-solde {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 8px; padding: 0 16px 12px;
+  font-size: 11px; font-weight: 500;
+}
+.solde-label { color: var(--text3); font-weight: 400; }
+.solde-val   { font-weight: 600; }
+.solde-ok   { color: var(--green); }
+.solde-warn { color: var(--gold); }
+.solde-low  { color: var(--red); }
+.solde-sep  { color: var(--text3); opacity: .4; }
+
+/* Expand panel */
+.entry-panel {
+  padding: 12px 16px 14px;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 10px;
+  background: rgba(0,0,0,.15);
+}
+.entry-card.retrait .entry-panel { border-color: var(--ret-border); }
+.entry-panel.hidden { display: none; }
+.panel-note {
+  font-size: 12px; color: var(--text2);
+  font-style: italic; line-height: 1.6;
+}
+.panel-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.panel-btn {
+  padding: 7px 14px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none;
+  font-family: 'Inter', sans-serif;
+  transition: opacity .15s;
+}
+.panel-btn:active { opacity: .7; }
+.panel-btn-edit   { background: var(--eur-dim); color: var(--eur); }
+.panel-btn-delete { background: var(--red-dim); color: var(--red); }
+
+/* ═══════════════════════════════
+   RECAP TAB
+═══════════════════════════════ */
+.recap-content { padding: 16px 16px 120px; }
+.recap-section { margin-bottom: 28px; }
+.recap-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: var(--text2); letter-spacing: .04em;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.recap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.recap-card {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 14px 15px;
+}
+.rc-label { font-size: 10px; font-weight: 500; color: var(--text3); margin-bottom: 6px; letter-spacing: .03em; }
+.rc-val   { font-size: 17px; font-weight: 700; letter-spacing: -.3px; line-height: 1; }
+.rc-sub   { font-size: 10px; color: var(--text3); margin-top: 4px; font-weight: 400; }
+
+.prog-bar-wrap { background: var(--surf2); border-radius: 4px; height: 4px; margin-top: 8px; overflow: hidden; }
+.prog-bar { height: 100%; border-radius: 4px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+
+.cat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 15px;
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: var(--r-md); margin-bottom: 6px;
+}
+.cat-row .cr-left { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; }
+.cat-row .cr-right { text-align: right; }
+.cat-row .cr-eur { font-weight: 700; font-size: 13px; color: var(--gold); }
+.cat-row .cr-pct { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+.daily-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.dr-label  { font-size: 11px; color: var(--text3); width: 46px; flex-shrink: 0; font-weight: 500; }
+.dr-bar-wrap { flex: 1; background: var(--surf2); border-radius: 6px; height: 24px; overflow: hidden; }
+.dr-bar {
+  height: 100%; border-radius: 6px;
+  background: linear-gradient(90deg, rgba(240,177,85,.3), rgba(240,177,85,.5));
+  display: flex; align-items: center; padding: 0 10px;
+  min-width: 4px; transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+.dr-amt { font-size: 10px; font-weight: 600; color: var(--gold); white-space: nowrap; }
+
+.taux-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 14px;
+  background: var(--ret-dim); border: 1px solid var(--ret-border);
+  border-radius: var(--r-md); margin-bottom: 6px;
+}
+.tr-left  { font-size: 11px; color: var(--text2); }
+.tr-right { font-weight: 700; color: var(--ret); font-size: 13px; }
+
+/* ═══════════════════════════════
+   MODAL / OVERLAY
+═══════════════════════════════ */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.overlay.hidden { display: none; }
+
+.modal {
+  background: var(--surf);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 8px 20px 40px;
+  width: 100%; max-width: 540px;
+  max-height: 93vh; overflow-y: auto;
+  animation: sheetUp .28s cubic-bezier(.4,0,.2,1);
+  border-top: 1px solid var(--border2);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--border2); margin: 10px auto 20px;
+}
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 700;
+  letter-spacing: -.3px; margin-bottom: 20px;
+}
+
+/* Forms */
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block; font-size: 10px; font-weight: 600;
+  color: var(--text3); text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: 7px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 15px;
+  padding: 13px 14px; outline: none;
+  -webkit-appearance: none;
+  transition: border-color .15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--gold); }
+.form-group textarea { resize: none; height: 72px; font-size: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Devise selector */
+.devise-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.devise-btn {
+  padding: 12px 6px; border-radius: var(--r-sm);
+  border: 1.5px solid var(--border2);
+  background: var(--bg2); color: var(--text3);
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+  cursor: pointer; text-align: center; transition: all .15s;
+  letter-spacing: .01em;
+}
+.devise-btn.active-ar  { border-color: var(--ar);  color: var(--ar);  background: var(--ar-dim); }
+.devise-btn.active-eur { border-color: var(--eur); color: var(--eur); background: var(--eur-dim); }
+.devise-btn.active-cb  { border-color: var(--cb);  color: var(--cb);  background: var(--cb-dim); }
+
+.preview {
+  background: var(--bg2); border-radius: var(--r-sm);
+  padding: 12px 14px; font-size: 13px; color: var(--gold);
+  text-align: center; margin-bottom: 14px; min-height: 44px;
+  font-weight: 500; border: 1px solid var(--border);
+}
+
+.modal-btns { display: flex; gap: 10px; margin-top: 6px; }
+.btn-save   { flex: 1; background: var(--gold); color: #0a0a0f; font-weight: 700; }
+.btn-cancel { background: var(--surf2); color: var(--text2); border: 1px solid var(--border2); padding: 13px 18px; }
+.btn-save-ret { flex: 1; background: var(--ret-dim); color: var(--ret); border: 1px solid var(--ret-border); font-weight: 700; }
+
+/* ═══════════════════════════════
+   SETUP SCREEN
+═══════════════════════════════ */
+.setup-screen {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 300; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 28px;
+}
+.setup-screen.hidden { display: none; }
+.setup-screen h1 {
+  font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800;
+  background: linear-gradient(135deg, #f0b155, #f0d185);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 8px; letter-spacing: -.5px;
+}
+.setup-screen > p { color: var(--text3); font-size: 13px; text-align: center; margin-bottom: 32px; line-height: 1.6; }
+.setup-card {
+  background: var(--surf); border: 1px solid var(--border2);
+  border-radius: var(--r-xl); padding: 24px; width: 100%; max-width: 400px;
+}
+.setup-tabs { display: flex; gap: 6px; margin-bottom: 22px; }
+.setup-tab {
+  flex: 1; padding: 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border2); background: var(--bg2);
+  color: var(--text3); font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 600; cursor: pointer; text-align: center;
+  transition: all .15s;
+}
+.setup-tab.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.setup-section { display: none; }
+.setup-section.active { display: block; }
+.setup-card h2 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+
+/* ═══════════════════════════════
+   PIN
+═══════════════════════════════ */
+.pin-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.85);
+  backdrop-filter: blur(12px); z-index: 400;
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-overlay.hidden { display: none; }
+.pin-box {
+  background: var(--surf); border: 1px solid var(--border2);
+  border-radius: var(--r-xl); padding: 32px 24px;
+  width: 300px; text-align: center;
+}
+.pin-box h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.pin-box p  { color: var(--text3); font-size: 12px; margin-bottom: 24px; }
+.pin-dots { display: flex; gap: 14px; justify-content: center; margin-bottom: 24px; }
+.pin-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid var(--border2); background: transparent; transition: all .15s;
+}
+.pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+.pin-dot.error  { background: var(--red);  border-color: var(--red); animation: shake .3s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+.pin-keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.pin-key {
+  aspect-ratio: 1; border-radius: 50%;
+  background: var(--surf2); border: 1px solid var(--border2);
+  color: var(--text); font-size: 20px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .1s;
+}
+.pin-key:active { background: var(--gold-dim); transform: scale(.92); }
+.pin-key.del { font-size: 16px; color: var(--text3); }
+.pin-key.empty { background: transparent; border-color: transparent; cursor: default; }
+
+/* ═══════════════════════════════
+   CONFIRM / ALERT MODALS
+═══════════════════════════════ */
+.confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+
+/* ═══════════════════════════════
+   MORE MENU
+═══════════════════════════════ */
+.more-menu {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surf); border-top: 1px solid var(--border2);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 8px 20px 48px; z-index: 200;
+}
+.more-menu.hidden { display: none; }
+.more-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 10px auto 16px; }
+.more-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 4px; border-bottom: 1px solid var(--border);
+  cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text);
+  transition: opacity .15s;
+}
+.more-item:active { opacity: .6; }
+.more-item:last-of-type { border-bottom: none; }
+.mi-icon { font-size: 18px; width: 30px; text-align: center; }
+.mi-sub  { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ═══════════════════════════════
+   HAPTIC FLASH
+═══════════════════════════════ */
+.save-flash {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(62,207,142,.12);
+  pointer-events: none; opacity: 0;
+  animation: flashAnim .5s ease forwards;
+}
+@keyframes flashAnim { 0%{opacity:1} 100%{opacity:0} }
+
+/* ═══════════════════════════════
+   EMPTY STATE
+═══════════════════════════════ */
+.empty {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 80px 20px; color: var(--text3); text-align: center;
+}
+.empty .e-ico { font-size: 48px; margin-bottom: 14px; opacity: .6; }
+.empty p { font-size: 14px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div class="setup-screen" id="setup-screen">
+  <h1>🇲🇬 Madagascar</h1>
+  <p>Configure la synchronisation cloud pour partager<br>tes dépenses en temps réel.</p>
+  <div class="setup-card">
+    <div class="setup-tabs">
+      <button class="setup-tab active" onclick="switchSetup('new')">Nouveau voyage</button>
+      <button class="setup-tab" onclick="switchSetup('join')">Rejoindre</button>
+    </div>
+    <div class="setup-section active" id="setup-new">
+      <h2>Créer un voyage partagé</h2>
+      <div class="form-group">
+        <label>Clé API JSONBin.io</label>
+        <input type="text" id="s-apikey" placeholder="$2b$10$..." autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Code PIN (4 chiffres)</label>
+        <input type="password" id="s-pin" placeholder="ex: 1234" maxlength="4" inputmode="numeric">
+      </div>
+      <button class="btn btn-save" style="width:100%" onclick="setupNew()">Créer &amp; démarrer →</button>
+      <p style="font-size:11px;color:var(--text3);margin-top:12px;text-align:center">
+        Pas de compte ? <a href="https://jsonbin.io" target="_blank" style="color:var(--gold)">jsonbin.io</a> — gratuit
+      </p>
+    </div>
+    <div class="setup-section" id="setup-join">
+      <h2>Rejoindre un voyage</h2>
+      <div class="form-group">
+        <label>Bin ID</label>
+        <input type="text" id="s-binid" placeholder="ex: 64f3a2...">
+      </div>
+      <div class="form-group">
+        <label>Clé API JSONBin.io</label>
+        <input type="text" id="s-apikey2" placeholder="$2b$10$..." autocomplete="off">
+      </div>
+      <button class="btn btn-save" style="width:100%" onclick="setupJoin()">Rejoindre →</button>
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <button class="btn" style="width:100%;background:var(--bg2);color:var(--text3);border:1px solid var(--border2)" onclick="skipSetup()">Continuer sans cloud</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIN OVERLAY -->
+<div class="pin-overlay hidden" id="pin-overlay">
+  <div class="pin-box">
+    <h3>🔐 Code PIN</h3>
+    <p>Requis pour les modifications</p>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <button class="btn btn-cancel" style="width:100%;margin-top:14px;justify-content:center" onclick="cancelPin()">Annuler</button>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell">
+
+  <header id="main-header">
+    <div class="header-top">
+      <div class="header-title">🇲🇬 Madagascar</div>
+      <button class="sync-pill" onclick="refreshData()">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span id="sync-label">Sync</span>
+      </button>
+    </div>
+    <div class="wallets">
+      <div class="wallet w-ar">
+        <div class="w-label">Cash Ar</div>
+        <div class="w-val" id="w-ar">—</div>
+        <div class="w-sub" id="w-ar-eur">—</div>
+      </div>
+      <div class="wallet w-eur">
+        <div class="w-label">Cash €</div>
+        <div class="w-val" id="w-eur">—</div>
+        <div class="w-sub">/ 1 000 €</div>
+      </div>
+      <div class="wallet w-tot">
+        <div class="w-label">Dépensé</div>
+        <div class="w-val" id="w-tot">—</div>
+        <div class="w-sub" id="w-tot-ar">—</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="cloud-bar hidden" id="cloud-bar">
+    <div class="cloud-left">
+      <div class="cloud-dot" id="cloud-dot"></div>
+      <span id="cloud-label">—</span>
+    </div>
+    <span id="cloud-binid" style="font-size:10px;color:var(--text3)"></span>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-dep" onclick="switchTab('dep')">Dépenses</button>
+    <button class="tab-btn" id="tab-recap" onclick="switchTab('recap')">Récapitulatif</button>
+  </div>
+
+  <div class="action-bar" id="action-bar">
+    <button class="btn btn-ar" onclick="requirePin(openDep)">＋ Dépense Ar</button>
+    <button class="btn btn-ret" onclick="requirePin(openRet)">↓ Retrait</button>
+    <button class="btn btn-more" onclick="toggleMore()">⋯</button>
+  </div>
+
+  <div class="scrollable-area">
+    <div class="swipe-wrapper" id="swipe-wrapper">
+
+      <!-- DÉPENSES -->
+      <div class="tab-pane" id="pane-dep">
+        <div class="ptr-wrap" id="ptr-wrap">
+          <div class="ptr-inner">
+            <div class="ptr-icon" id="ptr-icon"></div>
+            <span id="ptr-label">Tirer pour actualiser</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="empty" id="empty"><div class="e-ico">🌴</div><p>Aucune dépense pour l'instant</p></div>
+          <div id="entries-list"></div>
+        </div>
+      </div>
+
+      <!-- RÉCAPITULATIF -->
+      <div class="tab-pane" id="pane-recap">
+        <div class="recap-content" id="recap-content">
+          <p style="color:var(--text3);text-align:center;padding:60px 0;font-size:13px">Aucune donnée</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DÉPENSE -->
+<div class="overlay hidden" id="ov-dep">
+<div class="modal">
+  <div class="modal-handle"></div>
+  <h2 id="dep-title">Nouvelle dépense</h2>
+  <div class="form-group">
+    <label>Titre</label>
+    <input type="text" id="d-titre" placeholder="ex : Restaurant midi">
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="d-date">
+    </div>
+    <div class="form-group">
+      <label>Heure (optionnel)</label>
+      <input type="time" id="d-time">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Catégorie</label>
+    <select id="d-cat">
+      <option value="Nourriture">🍽 Nourriture</option>
+      <option value="Transport">🚌 Transport</option>
+      <option value="Hébergement">🏠 Hébergement</option>
+      <option value="Activités">🏄 Activités</option>
+      <option value="Shopping">🛍 Shopping</option>
+    </select>
+  </div>
+  <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;display:block;margin-bottom:8px">Moyen de paiement</label>
+  <div class="devise-group">
+    <button class="devise-btn active-ar" onclick="setDevise('Ar')">Ar Cash</button>
+    <button class="devise-btn" onclick="setDevise('EUR')">€ Cash</button>
+    <button class="devise-btn" onclick="setDevise('CB')">💳 CB</button>
+  </div>
+  <div class="form-group">
+    <label>Montant — <span id="d-devise-label" style="color:var(--ar)">en Ariary</span></label>
+    <input type="number" id="d-montant" placeholder="ex : 45 000" inputmode="decimal" oninput="updateDepPreview()">
+  </div>
+  <div class="preview" id="d-preview">Entrez un montant…</div>
+  <div class="form-group">
+    <label>Note (visible au clic)</label>
+    <textarea id="d-note" placeholder="Détails, personnes…"></textarea>
+  </div>
+  <div class="modal-btns">
+    <button class="btn btn-cancel" onclick="closeOv('ov-dep')">Annuler</button>
+    <button class="btn btn-save" onclick="saveDep()">Enregistrer</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL RETRAIT -->
+<div class="overlay hidden" id="ov-ret">
+<div class="modal">
+  <div class="modal-handle"></div>
+  <h2 style="color:var(--ret)">Retrait / Change</h2>
+  <div class="form-group">
+    <label>Type</label>
+    <select id="r-type" onchange="updateRetPreview()">
+      <option value="Change">💱 Change EUR → Ar</option>
+      <option value="Retrait">🏧 Retrait DAB (Ar)</option>
+      <option value="RetraitEUR">🏧 Retrait DAB (€)</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Description</label>
+    <input type="text" id="r-desc" placeholder="ex : Bureau de change Tana">
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="r-date">
+    </div>
+    <div class="form-group">
+      <label>Montant EUR débité</label>
+      <input type="number" id="r-eur" placeholder="ex : 150" inputmode="decimal" oninput="updateRetPreview()">
+    </div>
+  </div>
+  <div class="form-group" id="r-taux-group">
+    <label>Taux (1€ = ? Ar)</label>
+    <input type="number" id="r-taux" placeholder="ex : 4600" inputmode="decimal" oninput="updateRetPreview()">
+  </div>
+  <div class="preview" id="r-preview">Entrez un montant…</div>
+  <div class="form-group">
+    <label>Note (optionnel)</label>
+    <textarea id="r-note" placeholder="Lieu, remarques…"></textarea>
+  </div>
+  <div class="modal-btns">
+    <button class="btn btn-cancel" onclick="closeOv('ov-ret')">Annuler</button>
+    <button class="btn btn-save-ret" onclick="saveRet()">Enregistrer</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL ALERT -->
+<div class="overlay hidden" id="ov-alert">
+<div class="modal" style="padding:8px 20px 40px">
+  <div class="modal-handle"></div>
+  <p id="alert-msg" style="font-size:15px;font-weight:500;text-align:center;margin-bottom:24px;line-height:1.7;white-space:pre-line;padding-top:8px"></p>
+  <button class="btn btn-save" style="width:100%" onclick="closeAlert()">OK</button>
+</div>
+</div>
+
+<!-- MODAL CONFIRMATION -->
+<div class="overlay hidden" id="ov-confirm">
+<div class="modal" style="padding:8px 20px 40px">
+  <div class="modal-handle"></div>
+  <p id="confirm-msg" style="font-size:16px;font-weight:600;text-align:center;margin:16px 0 24px;line-height:1.5"></p>
+  <div class="confirm-actions">
+    <button class="btn btn-cancel" style="justify-content:center" onclick="confirmNo()">Annuler</button>
+    <button class="btn" style="background:var(--red-dim);color:var(--red);border:1px solid rgba(240,92,92,.25);justify-content:center;font-weight:700" onclick="confirmYes()">Supprimer</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL CLOUD -->
+<div class="overlay hidden" id="ov-cloud">
+<div class="modal">
+  <div class="modal-handle"></div>
+  <h2>Paramètres cloud</h2>
+  <div class="form-group">
+    <label>Bin ID (à partager)</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" id="cs-binid" readonly style="flex:1;font-size:12px;color:var(--ret)">
+      <button class="btn" id="cs-copy-btn" onclick="copyBinId()" style="background:var(--ret-dim);color:var(--ret);border:1px solid var(--ret-border);padding:13px 12px;font-size:12px;white-space:nowrap">📋 Copier</button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Clé API (masquée)</label>
+    <input type="text" id="cs-apikey-display" readonly style="color:var(--text3);font-size:12px">
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;font-weight:500" id="cs-pin-status"></div>
+  <div class="form-group">
+    <label>Changer le PIN (vide = pas de changement)</label>
+    <input type="password" id="cs-new-pin" placeholder="Nouveau PIN 4 chiffres" maxlength="4" inputmode="numeric">
+  </div>
+  <div style="margin-top:8px;padding-top:14px;border-top:1px solid var(--border)">
+    <button class="btn" style="width:100%;background:var(--red-dim);color:var(--red);border:1px solid rgba(240,92,92,.2)" onclick="resetCloud()">Changer de compte / Réinitialiser</button>
+  </div>
+  <div class="modal-btns" style="margin-top:10px">
+    <button class="btn btn-cancel" onclick="closeOv('ov-cloud')">Fermer</button>
+    <button class="btn btn-save" onclick="saveCloudSettings()">Enregistrer</button>
+  </div>
+</div>
+</div>
+
+<!-- MORE MENU -->
+<div class="more-menu hidden" id="more-menu">
+  <div class="more-handle"></div>
+  <div class="more-item" onclick="requirePin(openDepEUR);toggleMore()">
+    <span class="mi-icon">💶</span>
+    <div><div>Dépense € Cash</div><div class="mi-sub">Paiement en euros espèces</div></div>
+  </div>
+  <div class="more-item" onclick="requirePin(openDepCB);toggleMore()">
+    <span class="mi-icon">💳</span>
+    <div><div>Paiement CB</div><div class="mi-sub">Carte bancaire</div></div>
+  </div>
+  <div class="more-item" onclick="exportData();toggleMore()">
+    <span class="mi-icon">⬇️</span>
+    <div><div>Export JSON</div><div class="mi-sub">Télécharger une sauvegarde</div></div>
+  </div>
+  <div class="more-item" onclick="requirePin(()=>{document.getElementById('import-file').click();});toggleMore()">
+    <span class="mi-icon">⬆️</span>
+    <div><div>Import JSON</div><div class="mi-sub">Restaurer une sauvegarde</div></div>
+  </div>
+  <div class="more-item" onclick="requirePin(showCloudSettings);toggleMore()">
+    <span class="mi-icon">☁️</span>
+    <div><div>Paramètres cloud</div><div class="mi-sub">Bin ID, clé API, PIN</div></div>
+  </div>
+  <div class="more-item" onclick="toggleMore()">
+    <span class="mi-icon">✕</span>
+    <div>Fermer</div>
+  </div>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let entries       = [];
+let editId        = null;
+let curDevise     = 'Ar';
+let collapsedDays = {};
+const CASH_EUR_INIT = 1000;
+
+let cloudConfig = null;
+let pinVerified = sessionStorage.getItem('mdg2_pin_ok') === '1';
+let pinCallback = null;
+let pinBuffer   = '';
+
+let isSyncing   = false;
+let pendingPush = false;
+let pushTimer   = null;
+
+// ═══════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════
+const LS = {
+  get: k    => { try { return localStorage.getItem(k); } catch(e) { return null; } },
+  set: (k,v)=> { try { localStorage.setItem(k, v); } catch(e) {} },
+  del: k    => { try { localStorage.removeItem(k); } catch(e) {} }
+};
+function saveLocal()    { LS.set('mdg2_entries', JSON.stringify(entries)); }
+function loadLocal()    { const d=LS.get('mdg2_entries'); if(d){try{const p=JSON.parse(d);if(Array.isArray(p))entries=p;}catch(e){}} }
+function saveConfig()   { LS.set('mdg2_cloud', JSON.stringify(cloudConfig)); }
+function loadConfig()   { const d=LS.get('mdg2_cloud'); if(d){try{cloudConfig=JSON.parse(d);}catch(e){}} }
+function saveCollapsed(){ LS.set('mdg2_collapsed', JSON.stringify(collapsedDays)); }
+function loadCollapsed(){ const d=LS.get('mdg2_collapsed'); if(d){try{collapsedDays=JSON.parse(d);}catch(e){}} }
+function savePending()  { LS.set('mdg2_pending', JSON.stringify(pendingPush)); }
+function loadPending()  { const d=LS.get('mdg2_pending'); if(d){try{pendingPush=JSON.parse(d);}catch(e){}} }
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function uid()      { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function isOnline() { return navigator.onLine; }
+function todayStr() {
+  const n=new Date();
+  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+}
+function fEUR(n) { return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+function fAr(n)  { return Math.round(n).toLocaleString('fr-FR')+' Ar'; }
+function fDate(d) {
+  const [y,m,day]=d.split('-').map(Number);
+  return new Date(y,m-1,day).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+}
+function fDateShort(d) {
+  const [y,m,day]=d.split('-').map(Number);
+  return new Date(y,m-1,day).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+}
+function lastTaux() {
+  const rs=entries.filter(e=>e.kind==='retrait'&&e.taux&&e.type!=='RetraitEUR').sort((a,b)=>a.ts-b.ts);
+  return rs.length?rs[rs.length-1].taux:4600;
+}
+function catEmoji(c) { return {Hébergement:'🏠',Nourriture:'🍽',Transport:'🚌',Activités:'🏄',Shopping:'🛍'}[c]||''; }
+
+// ═══════════════════════════════════════════════════════
+// SYNC STATUS UI
+// ═══════════════════════════════════════════════════════
+function setSyncStatus(status, text) {
+  const dot=document.getElementById('sync-dot'), lbl=document.getElementById('sync-label');
+  const cdot=document.getElementById('cloud-dot'), clbl=document.getElementById('cloud-label');
+  if(dot) dot.className='sync-dot'+(status?' '+status:'');
+  if(lbl) lbl.textContent=text;
+  const cls={synced:'ok',error:'err',syncing:'sync',offline:'err',pending:'sync'}[status]||'';
+  if(cdot) cdot.className='cloud-dot'+(cls?' '+cls:'');
+  if(clbl) clbl.textContent=text;
+}
+function showCloudBar() {
+  const bar=document.getElementById('cloud-bar');
+  if(bar&&cloudConfig?.binId){
+    bar.classList.remove('hidden');
+    const el=document.getElementById('cloud-binid');
+    if(el) el.textContent='Bin: '+cloudConfig.binId.slice(-8);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// SYNC — PUSH
+// ═══════════════════════════════════════════════════════
+async function pushToCloud(force=false) {
+  if(!cloudConfig) loadConfig();
+  if(!cloudConfig?.apiKey||!cloudConfig?.binId) return;
+  if(isSyncing&&!force){ pendingPush=true; savePending(); return; }
+  // Safety: never push empty if local has data
+  if(entries.length===0){
+    const local=LS.get('mdg2_entries');
+    if(local){try{const p=JSON.parse(local);if(Array.isArray(p)&&p.length>0)return;}catch(e){}}
+  }
+  isSyncing=true;
+  setSyncStatus('syncing','Sauvegarde…');
+  try {
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${cloudConfig.binId}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':cloudConfig.apiKey,'X-Bin-Versioning':'false'},
+      body:JSON.stringify({entries,updatedAt:Date.now(),count:entries.length})
+    });
+    if(res.status===401||res.status===403){setSyncStatus('error','Erreur API 401/403');isSyncing=false;return;}
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    pendingPush=false; savePending();
+    LS.set('mdg2_last_push',Date.now().toString());
+    setSyncStatus('synced','Sauvegardé ✓');
+    showCloudBar();
+  } catch(e) {
+    if(!isOnline()){setSyncStatus('offline','Hors ligne — sauvegardé');pendingPush=true;savePending();}
+    else{setSyncStatus('error','Erreur sync');pendingPush=true;savePending();setTimeout(()=>pushToCloud(),30000);}
+  } finally {
+    isSyncing=false;
+    if(pendingPush){clearTimeout(pushTimer);pushTimer=setTimeout(()=>pushToCloud(),2000);}
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// SYNC — PULL
+// ═══════════════════════════════════════════════════════
+async function pullFromCloud() {
+  if(!cloudConfig) loadConfig();
+  if(!cloudConfig?.apiKey||!cloudConfig?.binId) return;
+  if(!isOnline()){setSyncStatus('offline','Hors ligne');return;}
+  if(isSyncing||pendingPush){return;}
+  setSyncStatus('syncing','Sync…');
+  try {
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${cloudConfig.binId}/latest`,{
+      headers:{'X-Master-Key':cloudConfig.apiKey}
+    });
+    if(res.status===401||res.status===403){setSyncStatus('error','Erreur API 401/403');return;}
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const remote=data?.record;
+    if(!remote||!Array.isArray(remote.entries)){setSyncStatus('error','Réponse invalide');return;}
+    const lc=entries.length, rc=remote.entries.length, rts=remote.updatedAt||0;
+    if(rc===0&&lc>0){ await pushToCloud(true); return; }
+    if(rc>lc){ entries=remote.entries; saveLocal(); render(); }
+    else if(rc===lc&&rts>0){
+      const lts=parseInt(LS.get('mdg2_last_push')||'0');
+      if(rts>lts){ entries=remote.entries; saveLocal(); render(); }
+    } else if(rc<lc){ await pushToCloud(true); return; }
+    setSyncStatus('synced','Synchronisé ✓');
+    showCloudBar();
+  } catch(e) {
+    if(!isOnline()) setSyncStatus('offline','Hors ligne');
+    else { setSyncStatus('error','Erreur cloud'); setTimeout(pullFromCloud,30000); }
+  }
+}
+
+function schedulePush() { clearTimeout(pushTimer); pushTimer=setTimeout(()=>pushToCloud(),1500); }
+function save() {
+  saveLocal();
+  if(cloudConfig?.apiKey&&cloudConfig?.binId){
+    if(isOnline()) schedulePush();
+    else{ pendingPush=true; savePending(); setSyncStatus('offline','Hors ligne — sauvegardé'); }
+  }
+}
+async function refreshData() {
+  if(cloudConfig?.apiKey&&cloudConfig?.binId) await pullFromCloud();
+  else{ loadLocal(); render(); setSyncStatus('synced','Actualisé ✓'); setTimeout(()=>setSyncStatus('','Sync'),2000); }
+}
+
+window.addEventListener('online', ()=>{
+  if(!cloudConfig) loadConfig();
+  if(pendingPush&&cloudConfig?.apiKey&&cloudConfig?.binId){
+    setSyncStatus('syncing','Reconnecté…');
+    setTimeout(()=>{ if(cloudConfig?.apiKey&&cloudConfig?.binId) pushToCloud(true); },2000);
+  } else if(cloudConfig?.apiKey&&cloudConfig?.binId) setSyncStatus('synced','En ligne ✓');
+});
+window.addEventListener('offline',()=>setSyncStatus('offline','Hors ligne'));
+
+// ═══════════════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════════════
+function switchSetup(tab){
+  document.querySelectorAll('.setup-tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&tab==='new')||(i===1&&tab==='join')));
+  document.getElementById('setup-new').classList.toggle('active',tab==='new');
+  document.getElementById('setup-join').classList.toggle('active',tab==='join');
+}
+async function setupNew(){
+  const apiKey=document.getElementById('s-apikey').value.trim();
+  const pin=document.getElementById('s-pin').value.trim();
+  if(!apiKey){showAlert('Entre ta clé API JSONBin.io');return;}
+  if(pin&&(pin.length!==4||!/^\d{4}$/.test(pin))){showAlert('Le PIN doit être 4 chiffres');return;}
+  setSyncStatus('syncing','Création…');
+  try{
+    const res=await fetch('https://api.jsonbin.io/v3/b',{method:'POST',
+      headers:{'Content-Type':'application/json','X-Master-Key':apiKey,'X-Bin-Name':'Madagascar Dépenses','X-Bin-Private':'false','X-Bin-Versioning':'false'},
+      body:JSON.stringify({entries:[],updatedAt:Date.now(),count:0})});
+    if(!res.ok) throw new Error('HTTP '+res.status+' — vérifie ta clé API');
+    const data=await res.json();
+    cloudConfig={apiKey,binId:data.metadata.id,pin:pin||null};
+    saveConfig(); finishSetup(data.metadata.id);
+  }catch(e){showAlert('Erreur : '+e.message);setSyncStatus('error','Erreur');}
+}
+async function setupJoin(){
+  const binId=document.getElementById('s-binid').value.trim();
+  const apiKey=document.getElementById('s-apikey2').value.trim();
+  if(!binId||!apiKey){showAlert('Remplis tous les champs');return;}
+  cloudConfig={apiKey,binId,pin:null}; saveConfig(); finishSetup(binId); await pullFromCloud();
+}
+function skipSetup(){
+  LS.set('mdg2_setup_skipped','1'); cloudConfig=null; saveConfig();
+  document.getElementById('setup-screen').classList.add('hidden');
+  loadLocal(); seedData(); render();
+}
+function finishSetup(binId){
+  document.getElementById('setup-screen').classList.add('hidden');
+  showCloudBar();
+  setTimeout(()=>showAlert('✅ Voyage créé !\n\nBin ID à partager :\n'+binId),300);
+  loadLocal(); seedData(); render();
+  if(cloudConfig?.apiKey&&cloudConfig?.binId&&entries.length>0) pushToCloud(true);
+}
+
+// ═══════════════════════════════════════════════════════
+// CLOUD SETTINGS
+// ═══════════════════════════════════════════════════════
+function showCloudSettings(){
+  const el=document.getElementById('cs-binid'); if(el) el.value=cloudConfig?.binId||'—';
+  const a=document.getElementById('cs-apikey-display'); if(a) a.value=cloudConfig?.apiKey?cloudConfig.apiKey.slice(0,16)+'…':'—';
+  const p=document.getElementById('cs-pin-status'); if(p) p.textContent=cloudConfig?.pin?'🔐 PIN actif':'🔓 Pas de PIN';
+  const n=document.getElementById('cs-new-pin'); if(n) n.value='';
+  document.getElementById('ov-cloud').classList.remove('hidden');
+}
+function saveCloudSettings(){
+  const np=document.getElementById('cs-new-pin').value.trim();
+  if(np&&(np.length!==4||!/^\d{4}$/.test(np))){showAlert('PIN = 4 chiffres exactement');return;}
+  if(np&&cloudConfig){cloudConfig.pin=np;resetPinSession();saveConfig();}
+  document.getElementById('ov-cloud').classList.add('hidden');
+}
+function resetCloud(){
+  showConfirm('Réinitialiser la config cloud ?\nDonnées locales conservées.',()=>{
+    cloudConfig=null; saveConfig(); resetPinSession();
+    LS.del('mdg2_setup_skipped');
+    document.getElementById('ov-cloud').classList.add('hidden');
+    setSyncStatus('','Sync');
+    document.getElementById('cloud-bar').classList.add('hidden');
+    document.getElementById('setup-screen').classList.remove('hidden');
+  });
+}
+function copyBinId(){
+  const binId=cloudConfig?.binId||''; if(!binId||binId==='—') return;
+  const btn=document.getElementById('cs-copy-btn');
+  const done=()=>{if(btn){btn.textContent='✓ Copié !';setTimeout(()=>btn.textContent='📋 Copier',2000);}};
+  if(navigator.clipboard) navigator.clipboard.writeText(binId).then(done).catch(()=>fbCopy(binId,done));
+  else fbCopy(binId,done);
+}
+function fbCopy(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
+
+// ═══════════════════════════════════════════════════════
+// PIN
+// ═══════════════════════════════════════════════════════
+function requirePin(cb){
+  if(!cloudConfig?.pin||pinVerified){cb();return;}
+  pinCallback=cb; pinBuffer=''; renderPinDots();
+  document.getElementById('pin-overlay').classList.remove('hidden');
+}
+function pinKey(k){
+  if(pinBuffer.length>=4) return;
+  pinBuffer+=k; renderPinDots();
+  if(pinBuffer.length===4) setTimeout(checkPin,120);
+}
+function pinDel(){pinBuffer=pinBuffer.slice(0,-1);renderPinDots();}
+function renderPinDots(err){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('pd'+i);
+    if(d) d.className='pin-dot'+(i<pinBuffer.length?' filled':'')+(err?' error':'');
+  }
+}
+function checkPin(){
+  if(pinBuffer===cloudConfig.pin){
+    pinVerified=true; sessionStorage.setItem('mdg2_pin_ok','1');
+    document.getElementById('pin-overlay').classList.add('hidden');
+    const cb=pinCallback; pinCallback=null;
+    if(cb) setTimeout(cb,80);
+  } else { renderPinDots(true); setTimeout(()=>{pinBuffer='';renderPinDots();},600); }
+}
+function cancelPin(){pinBuffer='';pinCallback=null;document.getElementById('pin-overlay').classList.add('hidden');}
+function resetPinSession(){pinVerified=false;sessionStorage.removeItem('mdg2_pin_ok');}
+
+// ═══════════════════════════════════════════════════════
+// CONFIRM / ALERT
+// ═══════════════════════════════════════════════════════
+let confirmCallback=null;
+function showConfirm(msg,cb){
+  const el=document.getElementById('confirm-msg'); if(el) el.textContent=msg;
+  confirmCallback=cb; document.getElementById('ov-confirm').classList.remove('hidden');
+}
+function confirmYes(){document.getElementById('ov-confirm').classList.add('hidden');const cb=confirmCallback;confirmCallback=null;if(cb)setTimeout(cb,80);}
+function confirmNo(){document.getElementById('ov-confirm').classList.add('hidden');confirmCallback=null;}
+function showAlert(msg){const el=document.getElementById('alert-msg');if(el){el.textContent=msg;document.getElementById('ov-alert').classList.remove('hidden');}else{try{alert(msg);}catch(e){}}}
+function closeAlert(){document.getElementById('ov-alert').classList.add('hidden');}
+
+// ═══════════════════════════════════════════════════════
+// HAPTIC FLASH
+// ═══════════════════════════════════════════════════════
+function hapticFlash(){
+  if(navigator.vibrate) navigator.vibrate(40);
+  const el=document.createElement('div'); el.className='save-flash';
+  document.body.appendChild(el); el.addEventListener('animationend',()=>el.remove());
+}
+
+// ═══════════════════════════════════════════════════════
+// TABS + SWIPE
+// ═══════════════════════════════════════════════════════
+let currentTab='dep';
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tab-dep').classList.toggle('active',tab==='dep');
+  document.getElementById('tab-recap').classList.toggle('active',tab==='recap');
+  document.getElementById('swipe-wrapper').classList.toggle('tab-recap',tab==='recap');
+  document.getElementById('action-bar').style.display=tab==='dep'?'flex':'none';
+  if(tab==='recap') renderRecap();
+}
+
+let txStart=0,tyStart=0;
+const scrollArea=document.querySelector('.scrollable-area');
+scrollArea.addEventListener('touchstart',e=>{txStart=e.touches[0].clientX;tyStart=e.touches[0].clientY;},{passive:true});
+scrollArea.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-txStart;
+  const dy=Math.abs(e.changedTouches[0].clientY-tyStart);
+  if(Math.abs(dx)>65&&dy<40){
+    if(dx<0&&currentTab==='dep') switchTab('recap');
+    if(dx>0&&currentTab==='recap') switchTab('dep');
+  }
+},{passive:true});
+
+// Header hide/show — only show on scroll UP, ignore iOS bounce at bottom
+let lastScrollY=0;
+const headerEl=document.getElementById('main-header');
+function handleHeaderScroll(pane){
+  const y=pane.scrollTop;
+  const maxScroll=pane.scrollHeight-pane.clientHeight;
+  const atBottom=y>=maxScroll-10;
+  if(y>lastScrollY&&y>80) headerEl.classList.add('hidden-header');
+  else if(y<lastScrollY-10&&!atBottom) headerEl.classList.remove('hidden-header');
+  lastScrollY=y;
+}
+document.getElementById('pane-dep').addEventListener('scroll',function(){handleHeaderScroll(this);},{passive:true});
+document.getElementById('pane-recap').addEventListener('scroll',function(){handleHeaderScroll(this);},{passive:true});
+
+// ═══════════════════════════════════════════════════════
+// PULL TO REFRESH — smooth, content moves with indicator
+// ═══════════════════════════════════════════════════════
+(function(){
+  const pane=document.getElementById('pane-dep');
+  const wrap=document.getElementById('ptr-wrap');
+  const icon=document.getElementById('ptr-icon');
+  const lbl=document.getElementById('ptr-label');
+  let startY=0, pulling=false, triggered=false;
+
+  pane.addEventListener('touchstart',e=>{
+    if(pane.scrollTop===0){ startY=e.touches[0].clientY; pulling=true; triggered=false; }
+  },{passive:true});
+
+  pane.addEventListener('touchmove',e=>{
+    if(!pulling) return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy>8&&pane.scrollTop<=0){
+      wrap.classList.add('ptr-open');
+      if(dy>72&&!triggered){
+        triggered=true;
+        icon.className='ptr-icon ready';
+        lbl.textContent='Relâcher pour actualiser';
+      } else if(!triggered){
+        // Rotate icon proportionally to pull distance
+        const rot=Math.min(180,dy*2);
+        icon.style.transform=`rotate(${rot}deg)`;
+        lbl.textContent='Tirer pour actualiser';
+      }
+    } else if(dy<=0){
+      wrap.classList.remove('ptr-open');
+      icon.className='ptr-icon';
+      icon.style.transform='';
+    }
+  },{passive:true});
+
+  pane.addEventListener('touchend',async()=>{
+    if(!pulling) return; pulling=false;
+    if(triggered){
+      icon.className='ptr-icon spinning';
+      icon.style.transform='';
+      lbl.textContent='Actualisation…';
+      await refreshData();
+      hapticFlash();
+    }
+    setTimeout(()=>{
+      wrap.classList.remove('ptr-open');
+      icon.className='ptr-icon';
+      icon.style.transform='';
+      lbl.textContent='Tirer pour actualiser';
+      triggered=false;
+    },300);
+  },{passive:true});
+})();
+
+// ═══════════════════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════════════════
+function closeOv(id){document.getElementById(id).classList.add('hidden');}
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',function(e){if(e.target===this)this.classList.add('hidden');});
+});
+function toggleMore(){document.getElementById('more-menu').classList.toggle('hidden');}
+document.getElementById('more-menu').addEventListener('click',function(e){if(e.target===this)this.classList.add('hidden');});
+
+// ═══════════════════════════════════════════════════════
+// DEVISE
+// ═══════════════════════════════════════════════════════
+function setDevise(d){
+  curDevise=d;
+  const btns=document.querySelectorAll('.devise-btn');
+  btns.forEach(b=>b.className='devise-btn');
+  if(d==='Ar')  btns[0].className='devise-btn active-ar';
+  if(d==='EUR') btns[1].className='devise-btn active-eur';
+  if(d==='CB')  btns[2].className='devise-btn active-cb';
+  const labels={Ar:'en Ariary',EUR:'en Euros (€)',CB:'CB (€)'};
+  const colors={Ar:'var(--ar)',EUR:'var(--eur)',CB:'var(--cb)'};
+  const lbl=document.getElementById('d-devise-label');
+  if(lbl){lbl.textContent=labels[d];lbl.style.color=colors[d];}
+  updateDepPreview();
+}
+
+// ═══════════════════════════════════════════════════════
+// OPEN MODALS
+// ═══════════════════════════════════════════════════════
+function openDep(preset){
+  editId=null;
+  document.getElementById('dep-title').textContent='Nouvelle dépense';
+  document.getElementById('d-date').value=todayStr();
+  document.getElementById('d-time').value='';
+  document.getElementById('d-titre').value='';
+  document.getElementById('d-montant').value='';
+  document.getElementById('d-note').value='';
+  document.getElementById('d-preview').textContent='Entrez un montant…';
+  setDevise(preset||'Ar');
+  document.getElementById('ov-dep').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('d-titre').focus(),200);
+}
+function openDepEUR(){openDep('EUR');}
+function openDepCB(){openDep('CB');}
+function openRet(){
+  editId=null;
+  document.getElementById('r-date').value=todayStr();
+  document.getElementById('r-eur').value='';
+  document.getElementById('r-taux').value=lastTaux();
+  document.getElementById('r-desc').value='';
+  document.getElementById('r-note').value='';
+  document.getElementById('r-preview').textContent='Entrez un montant…';
+  document.getElementById('ov-ret').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════════════
+// PREVIEW
+// ═══════════════════════════════════════════════════════
+function updateDepPreview(){
+  const m=parseFloat(document.getElementById('d-montant').value)||0;
+  const t=lastTaux(); const el=document.getElementById('d-preview');
+  if(!m){el.textContent='Entrez un montant…';return;}
+  if(curDevise==='Ar')  el.textContent=fAr(m)+' ≈ '+fEUR(m/t)+'  (1€ = '+t.toLocaleString('fr-FR')+' Ar)';
+  if(curDevise==='EUR') el.textContent=fEUR(m)+' ≈ '+fAr(m*t);
+  if(curDevise==='CB')  el.textContent=fEUR(m)+' par CB ≈ '+fAr(m*t);
+}
+function updateRetPreview(){
+  const eur=parseFloat(document.getElementById('r-eur').value)||0;
+  const taux=parseFloat(document.getElementById('r-taux').value)||0;
+  const type=document.getElementById('r-type').value;
+  const el=document.getElementById('r-preview');
+  document.getElementById('r-taux-group').style.display=type==='RetraitEUR'?'none':'';
+  if(!eur){el.textContent='Entrez un montant…';return;}
+  if(type==='RetraitEUR'){el.textContent='+ '+fEUR(eur)+' en cash €';return;}
+  if(taux) el.textContent=fEUR(eur)+' → '+fAr(eur*taux)+'  (1€ = '+taux.toLocaleString('fr-FR')+' Ar)';
+  else el.textContent=fEUR(eur)+' — entrez le taux';
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE
+// ═══════════════════════════════════════════════════════
+function saveDep(){
+  const date=document.getElementById('d-date').value;
+  const time=document.getElementById('d-time').value||'';
+  const titre=document.getElementById('d-titre').value.trim();
+  const cat=document.getElementById('d-cat').value;
+  const montant=parseFloat(document.getElementById('d-montant').value);
+  const note=document.getElementById('d-note').value.trim();
+  if(!date||!titre||isNaN(montant)||montant<=0){showAlert('Remplis la date, le titre et le montant.');return;}
+  const e={id:editId||uid(),ts:Date.now(),kind:'depense',date,time,titre,cat,montant,devise:curDevise,note,taux:lastTaux()};
+  if(editId){const i=entries.findIndex(x=>x.id===editId);if(i!==-1)entries[i]=e;}
+  else entries.push(e);
+  save(); closeOv('ov-dep'); render(); hapticFlash();
+}
+function saveRet(){
+  const date=document.getElementById('r-date').value;
+  const type=document.getElementById('r-type').value;
+  const desc=document.getElementById('r-desc').value.trim();
+  const eur=parseFloat(document.getElementById('r-eur').value);
+  const taux=parseFloat(document.getElementById('r-taux').value);
+  const note=document.getElementById('r-note').value.trim();
+  if(!date||isNaN(eur)||eur<=0){showAlert('Remplis la date et le montant.');return;}
+  if(type!=='RetraitEUR'&&(!taux||taux<=0)){showAlert('Remplis le taux de change.');return;}
+  const ar=type==='RetraitEUR'?0:Math.round(eur*taux);
+  const e={id:editId||uid(),ts:Date.now(),kind:'retrait',date,type,
+    desc:desc||(type==='Change'?'Change EUR→Ar':type==='RetraitEUR'?'Retrait DAB €':'Retrait DAB Ar'),
+    eur,taux:type==='RetraitEUR'?null:taux,ar,note};
+  if(editId){const i=entries.findIndex(x=>x.id===editId);if(i!==-1)entries[i]=e;}
+  else entries.push(e);
+  save(); closeOv('ov-ret'); render(); hapticFlash();
+}
+
+// ═══════════════════════════════════════════════════════
+// DELETE & EDIT
+// ═══════════════════════════════════════════════════════
+function deleteEntry(id,event){
+  event.stopPropagation();
+  const doDelete=()=>showConfirm('Supprimer cette entrée ?',()=>{entries=entries.filter(e=>e.id!==id);save();render();});
+  if(!cloudConfig?.pin||pinVerified){doDelete();return;}
+  requirePin(()=>setTimeout(doDelete,120));
+}
+function editEntry(id,event){
+  event.stopPropagation();
+  const doEdit=()=>{
+    const e=entries.find(x=>x.id===id); if(!e) return;
+    editId=id;
+    if(e.kind==='depense'){
+      document.getElementById('dep-title').textContent='Modifier la dépense';
+      document.getElementById('d-date').value=e.date;
+      document.getElementById('d-time').value=e.time||'';
+      document.getElementById('d-titre').value=e.titre;
+      document.getElementById('d-cat').value=e.cat;
+      document.getElementById('d-montant').value=e.montant;
+      document.getElementById('d-note').value=e.note||'';
+      setDevise(e.devise);
+      document.getElementById('ov-dep').classList.remove('hidden');
+    } else {
+      document.getElementById('r-type').value=e.type;
+      document.getElementById('r-date').value=e.date;
+      document.getElementById('r-desc').value=e.desc;
+      document.getElementById('r-eur').value=e.eur;
+      document.getElementById('r-taux').value=e.taux||'';
+      document.getElementById('r-note').value=e.note||'';
+      updateRetPreview();
+      document.getElementById('ov-ret').classList.remove('hidden');
+    }
+  };
+  if(!cloudConfig?.pin||pinVerified){doEdit();return;}
+  requirePin(()=>setTimeout(doEdit,80));
+}
+function togglePanel(id){const el=document.getElementById('panel-'+id);if(el)el.classList.toggle('hidden');}
+function toggleDay(date){
+  collapsedDays[date]=!collapsedDays[date]; saveCollapsed();
+  const sep=document.getElementById('daysep-'+date);
+  const ents=document.getElementById('dayents-'+date);
+  if(sep) sep.classList.toggle('collapsed',!!collapsedDays[date]);
+  if(ents) ents.classList.toggle('hidden',!!collapsedDays[date]);
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPUTE
+// ═══════════════════════════════════════════════════════
+function computeAll(){
+  const sorted=[...entries].sort((a,b)=>
+    a.date<b.date?-1:a.date>b.date?1:
+    (a.time||'')<(b.time||'')?-1:(a.time||'')>(b.time||'')?1:a.ts-b.ts);
+  let cashAr=0, cashEUR=CASH_EUR_INIT;
+  sorted.forEach(e=>{
+    if(e.kind==='retrait'){
+      if(e.type==='RetraitEUR') cashEUR+=e.eur;
+      else{if(e.type==='Change')cashEUR-=e.eur;cashAr+=e.ar;}
+    } else {
+      if(e.devise==='EUR') cashEUR-=e.montant;
+      if(e.devise==='Ar')  cashAr-=e.montant;
+    }
+    e._cashAr=cashAr; e._cashEUR=cashEUR;
+  });
+  const t=lastTaux();
+  const dep=sorted.filter(e=>e.kind==='depense');
+  const totEUR=dep.reduce((s,e)=>s+(e.devise==='Ar'?e.montant/(e.taux||t):e.montant),0);
+  const totAr =dep.reduce((s,e)=>s+(e.devise==='Ar'?e.montant:e.montant*(e.taux||t)),0);
+  return{sorted,cashAr,cashEUR,totEUR,totAr};
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER ENTRIES
+// ═══════════════════════════════════════════════════════
+function render(){
+  const{sorted,cashAr,cashEUR,totEUR,totAr}=computeAll();
+  const t=lastTaux();
+  document.getElementById('w-ar').textContent    =fAr(cashAr);
+  document.getElementById('w-ar-eur').textContent='≈'+fEUR(cashAr/t);
+  document.getElementById('w-eur').textContent   =fEUR(cashEUR);
+  document.getElementById('w-tot').textContent   =fEUR(totEUR);
+  document.getElementById('w-tot-ar').textContent=fAr(totAr);
+
+  const list=document.getElementById('entries-list');
+  const empty=document.getElementById('empty');
+  if(!entries.length){empty.style.display='';list.innerHTML='';return;}
+  empty.style.display='none';
+
+  const byDay={};
+  sorted.forEach(e=>{(byDay[e.date]||(byDay[e.date]=[])).push(e);});
+
+  let html='', totalCardIdx=0;
+  Object.keys(byDay).sort().forEach(date=>{
+    const day=byDay[date];
+    const collapsed=!!collapsedDays[date];
+    const dayTot=day.filter(e=>e.kind==='depense').reduce((s,e)=>s+(e.devise==='Ar'?e.montant/(e.taux||t):e.montant),0);
+
+    html+=`<div class="day-sep${collapsed?' collapsed':''}" id="daysep-${date}" onclick="toggleDay('${date}')">
+      <div class="day-chevron">▼</div>
+      <div class="day-info">
+        <div class="day-name">${fDate(date)}</div>
+        ${dayTot>0?`<div class="day-amount">${fEUR(dayTot)} dépensés</div>`:''}
+      </div>
+      <div class="day-line"></div>
+    </div>
+    <div class="day-entries${collapsed?' hidden':''}" id="dayents-${date}">`;
+
+    let cardIdx=0;
+    day.forEach(e=>{
+      const delay=cardIdx*35; cardIdx++; totalCardIdx++;
+      if(e.kind==='retrait'){
+        const isEUR=e.type==='RetraitEUR';
+        const ico=e.type==='Change'?'💱':'🏧';
+        const label=e.type==='Change'?'Change EUR → Ar':isEUR?'Retrait DAB €':'Retrait DAB Ar';
+        const convAmt=isEUR?'→ cash €':'→ '+fAr(e.ar)+(e.taux?' (1€='+e.taux.toLocaleString('fr-FR')+' Ar)':'');
+        html+=`<div class="entry-card retrait" style="animation-delay:${delay}ms" onclick="togglePanel('${e.id}')">
+          <div class="entry-main">
+            <div class="entry-left">
+              <div class="entry-title">${ico} ${label}</div>
+              <div class="entry-tags"><span class="badge b-ret">Retrait</span></div>
+            </div>
+            <div class="entry-right">
+              <div class="entry-amount" style="color:var(--ret)">+${fEUR(e.eur)}</div>
+              <div class="entry-eq">${convAmt}</div>
+            </div>
+          </div>
+          <div class="entry-solde">
+            <span class="solde-label">Portefeuilles</span>
+            <span class="solde-val solde-ok">${fEUR(e._cashEUR||0)}</span>
+            <span class="solde-sep">·</span>
+            <span class="solde-val" style="color:var(--ar)">${fAr(e._cashAr||0)}</span>
+          </div>
+          <div class="entry-panel hidden" id="panel-${e.id}">
+            <div class="panel-note">${e.note||'<em style="opacity:.5">Aucune note.</em>'}</div>
+            <div class="panel-actions">
+              <button class="panel-btn panel-btn-edit" onclick="editEntry('${e.id}',event)">✏️ Modifier</button>
+              <button class="panel-btn panel-btn-delete" onclick="deleteEntry('${e.id}',event)">🗑 Supprimer</button>
+            </div>
+          </div>
+        </div>`;
+      } else {
+        const tt=e.taux||t, isAr=e.devise==='Ar';
+        const mainAmt=isAr?fAr(e.montant):fEUR(e.montant);
+        const convAmt=isAr?'≈ '+fEUR(e.montant/tt):'≈ '+fAr(e.montant*tt);
+        const amtColor=isAr?'var(--ar)':e.devise==='CB'?'var(--cb)':'var(--eur)';
+        const payBadge=e.devise==='Ar'?'b-ar':e.devise==='CB'?'b-cb':'b-eur';
+        const payLabel=e.devise==='Ar'?'Ar Cash':e.devise==='CB'?'CB':'€ Cash';
+        const sAr=e._cashAr||0, sEur=e._cashEUR||0;
+        const scAr=sAr>200000?'solde-ok':sAr>50000?'solde-warn':'solde-low';
+        const scEur=sEur>100?'solde-ok':sEur>30?'solde-warn':'solde-low';
+        html+=`<div class="entry-card" style="animation-delay:${delay}ms" onclick="togglePanel('${e.id}')">
+          <div class="entry-main">
+            <div class="entry-left">
+              <div class="entry-title">${e.titre}${e.note?' 📝':''}${e.time?` <span style="font-size:10px;color:var(--text3);font-weight:400">${e.time}</span>`:''}</div>
+              <div class="entry-tags">
+                <span class="badge b-cat">${catEmoji(e.cat)} ${e.cat}</span>
+                <span class="badge ${payBadge}">${payLabel}</span>
+              </div>
+            </div>
+            <div class="entry-right">
+              <div class="entry-amount" style="color:${amtColor}">${mainAmt}</div>
+              <div class="entry-eq">${convAmt}</div>
+            </div>
+          </div>
+          <div class="entry-solde">
+            <span class="solde-label">Reste</span>
+            <span class="solde-val ${scEur}">${fEUR(sEur)}</span>
+            <span class="solde-sep">·</span>
+            <span class="solde-val ${scAr}">${fAr(sAr)}</span>
+          </div>
+          <div class="entry-panel hidden" id="panel-${e.id}">
+            <div class="panel-note">${e.note||'<em style="opacity:.5">Aucune note.</em>'}</div>
+            <div class="panel-actions">
+              <button class="panel-btn panel-btn-edit" onclick="editEntry('${e.id}',event)">✏️ Modifier</button>
+              <button class="panel-btn panel-btn-delete" onclick="deleteEntry('${e.id}',event)">🗑 Supprimer</button>
+            </div>
+          </div>
+        </div>`;
+      }
+    });
+    html+=`</div>`;
+  });
+  list.innerHTML=html;
+  if(currentTab==='recap') renderRecap();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER RECAP
+// ═══════════════════════════════════════════════════════
+function renderRecap(){
+  const{sorted,cashAr,cashEUR,totEUR,totAr}=computeAll();
+  const t=lastTaux();
+  const dep=sorted.filter(e=>e.kind==='depense');
+  const byCat={},byPay={EUR:0,Ar:0,CB:0},byDay={};
+  dep.forEach(e=>{
+    const tt=e.taux||t, v=e.devise==='Ar'?e.montant/tt:e.montant;
+    byCat[e.cat]=(byCat[e.cat]||0)+v;
+    byPay[e.devise]=(byPay[e.devise]||0)+v;
+    byDay[e.date]=(byDay[e.date]||0)+v;
+  });
+  const dayEntries=Object.entries(byDay).sort(([a],[b])=>a<b?-1:1);
+  const maxDay=Math.max(...Object.values(byDay),0.01);
+  const taux=sorted.filter(e=>e.kind==='retrait'&&e.taux);
+  const pct=Math.min(100,(totEUR/CASH_EUR_INIT)*100);
+  const pctColor=pct<60?'var(--green)':pct<85?'var(--gold)':'var(--red)';
+  const avg=totEUR/(dayEntries.length||1);
+
+  let html=`<div class="recap-section">
+    <div class="recap-title">Budget global</div>
+    <div class="recap-grid">
+      <div class="recap-card">
+        <div class="rc-label">Total dépensé</div>
+        <div class="rc-val" style="color:var(--gold)">${fEUR(totEUR)}</div>
+        <div class="rc-sub">${fAr(totAr)}</div>
+        <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct.toFixed(1)}%;background:${pctColor}"></div></div>
+        <div class="rc-sub" style="margin-top:6px">${pct.toFixed(0)}% du budget</div>
+      </div>
+      <div class="recap-card">
+        <div class="rc-label">Reste estimé</div>
+        <div class="rc-val" style="color:var(--green)">${fEUR(cashEUR+cashAr/t)}</div>
+        <div class="rc-sub">${fEUR(cashEUR)} + ${fEUR(cashAr/t)} Ar</div>
+      </div>
+      <div class="recap-card">
+        <div class="rc-label">Moyenne / jour</div>
+        <div class="rc-val" style="color:var(--eur)">${fEUR(avg)}</div>
+        <div class="rc-sub">sur ${dayEntries.length||0} jour${dayEntries.length>1?'s':''}</div>
+      </div>
+      <div class="recap-card">
+        <div class="rc-label">Cash Ar restant</div>
+        <div class="rc-val" style="color:var(--ar)">${fAr(cashAr)}</div>
+        <div class="rc-sub">≈ ${fEUR(cashAr/t)}</div>
+      </div>
+    </div>
+  </div>
+  <div class="recap-section">
+    <div class="recap-title">Par moyen de paiement</div>
+    <div class="recap-grid">
+      <div class="recap-card"><div class="rc-label">Cash Ar</div><div class="rc-val" style="color:var(--ar)">${fEUR(byPay.Ar||0)}</div><div class="rc-sub">${totEUR>0?((byPay.Ar||0)/totEUR*100).toFixed(0)+'%':''}</div></div>
+      <div class="recap-card"><div class="rc-label">Cash €</div><div class="rc-val" style="color:var(--eur)">${fEUR(byPay.EUR||0)}</div><div class="rc-sub">${totEUR>0?((byPay.EUR||0)/totEUR*100).toFixed(0)+'%':''}</div></div>
+      <div class="recap-card"><div class="rc-label">CB</div><div class="rc-val" style="color:var(--cb)">${fEUR(byPay.CB||0)}</div><div class="rc-sub">${totEUR>0?((byPay.CB||0)/totEUR*100).toFixed(0)+'%':''}</div></div>
+      <div class="recap-card"><div class="rc-label">Taux actuel</div><div class="rc-val" style="color:var(--ret);font-size:13px">1€ = ${lastTaux().toLocaleString('fr-FR')} Ar</div></div>
+    </div>
+  </div>`;
+
+  const cats=Object.entries(byCat).sort(([,a],[,b])=>b-a);
+  if(cats.length){
+    html+=`<div class="recap-section"><div class="recap-title">Par catégorie</div>`;
+    cats.forEach(([c,v])=>{
+      const p=totEUR>0?(v/totEUR*100):0;
+      html+=`<div class="cat-row">
+        <div class="cr-left">${catEmoji(c)} ${c}</div>
+        <div class="cr-right"><div class="cr-eur">${fEUR(v)}</div><div class="cr-pct">${p.toFixed(0)}%</div></div>
+      </div>
+      <div style="margin-bottom:8px"><div class="prog-bar-wrap"><div class="prog-bar" style="width:${p.toFixed(1)}%;background:rgba(240,177,85,.45)"></div></div></div>`;
+    });
+    html+=`</div>`;
+  }
+  if(dayEntries.length){
+    html+=`<div class="recap-section"><div class="recap-title">Par jour</div>`;
+    dayEntries.forEach(([date,v])=>{
+      html+=`<div class="daily-row">
+        <div class="dr-label">${fDateShort(date)}</div>
+        <div class="dr-bar-wrap"><div class="dr-bar" style="width:${(v/maxDay*100).toFixed(1)}%"><span class="dr-amt">${fEUR(v)}</span></div></div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  if(taux.length){
+    html+=`<div class="recap-section"><div class="recap-title">Taux utilisés</div>`;
+    taux.forEach(e=>{html+=`<div class="taux-row"><div class="tr-left">${fDate(e.date)} — ${e.desc}</div><div class="tr-right">1€ = ${e.taux.toLocaleString('fr-FR')} Ar</div></div>`;});
+    html+=`</div>`;
+  }
+  document.getElementById('recap-content').innerHTML=html||'<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:13px">Aucune dépense</p>';
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════
+function exportData(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(entries,null,2)],{type:'application/json'}));
+  a.download='madagascar-depenses.json'; a.click();
+}
+function importData(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{try{const d=JSON.parse(e.target.result);if(Array.isArray(d)){entries=d;save();render();showAlert(d.length+' entrées importées !');}else showAlert('Format invalide.');}catch{showAlert('Fichier JSON invalide.');}};
+  r.readAsText(file); ev.target.value='';
+}
+
+// ═══════════════════════════════════════════════════════
+// SEED DATA
+// ═══════════════════════════════════════════════════════
+function seedData(){
+  if(entries.length>0) return;
+  let ts=1711666800000;
+  function mk(o){ts+=1000;return{id:uid(),ts,...o};}
+  entries.push(mk({kind:'depense',date:'2025-03-29',titre:'Ferrero Rocher',cat:'Shopping',montant:15,devise:'CB',note:'Achat à l\'aéroport',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-29',titre:'Cash EUR x2',cat:'Shopping',montant:80,devise:'EUR',note:'2x 40€ espèces',taux:4600}));
+  entries.push(mk({kind:'retrait',date:'2025-03-29',type:'Change',desc:'Change cash — bureau de change',eur:450,taux:4600,ar:2070000,note:'450€ → 2 070 000 Ar'}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Resto + taxi Clermont',cat:'Nourriture',montant:210000,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Café petit-déj',cat:'Nourriture',montant:38000,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Visite palais royal',cat:'Activités',montant:60000,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Taxi aller palais',cat:'Transport',montant:50000,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Hôtel 2 nuits Tana',cat:'Hébergement',montant:204000,devise:'Ar',note:'2 nuits + eau',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Resto midi J1',cat:'Nourriture',montant:71000,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Courses eau + mouchoirs',cat:'Shopping',montant:43100,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Taxi retour',cat:'Transport',montant:20000,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Moto-taxi retour',cat:'Transport',montant:12000,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'retrait',date:'2025-03-30',type:'Retrait',desc:'Retrait DAB (CB Thomas)',eur:170,taux:4706,ar:800000,note:'812 000 Ar — taux ≈4706'}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Courses soir 4x4',cat:'Nourriture',montant:47500,devise:'Ar',taux:4600}));
+  entries.push(mk({kind:'depense',date:'2025-03-30',titre:'Resto du soir J1',cat:'Nourriture',montant:89000,devise:'Ar',taux:4600}));
+  save();
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+loadConfig(); loadCollapsed(); loadPending(); loadLocal();
+const setupSkipped=LS.get('mdg2_setup_skipped')==='1';
+if(!cloudConfig&&!setupSkipped&&entries.length===0){
+  // show setup screen
+} else {
+  document.getElementById('setup-screen').classList.add('hidden');
+  seedData(); render(); showCloudBar();
+  if(cloudConfig?.apiKey&&cloudConfig?.binId){
+    pullFromCloud();
+    setInterval(()=>{if(isOnline()&&!isSyncing&&!pushTimer)pullFromCloud();},60000);
+  } else {
+    setSyncStatus('','Sync');
+    document.getElementById('cloud-bar').classList.add('hidden');
+  }
+}
+</script>
+</body>
+</html>
